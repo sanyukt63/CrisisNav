@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    
+    <!-- Instant Auth Guard & Logout -->
+    <script type="module">
+        import { supabase } from './auth_service.js'
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!session && localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('signin.html');
+        } else if (session) {
+            // Ensure localStorage reflects Supabase state for legacy code
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+
+        // Handle Logout
+        document.querySelectorAll('.logout-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                localStorage.removeItem('isLoggedIn');
+                window.location.replace('signin.html');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Layout Start -->
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="side-menu" id="side-menu">
+                <div class="menu-header" style="position: relative;">
+                    <button class="close-menu-btn icon-btn" style="position: absolute; right: 0; top: 0; background: transparent; color: var(--text-muted); border: none; font-size: 1.25rem; cursor: pointer; padding: 4px;"><i class="ph-bold ph-x"></i></button>
+                    <div class="menu-logo">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <h2>CrisisNav</h2>
+                    </div>
+
+                    <div class="menu-user-info">
+                        <div class="menu-user-avatar">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Avatar" class="profile-pic-img">
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="profile-display-name">User</h3>
+                            <p class="profile-display-role">Crisis Responder</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-links">
+                    <a href="index.html" class="menu-link"><i class="ph-bold ph-house"></i> <span data-i18n="nav_home">Home</span></a>
+                    <a href="my-crises.html" class="menu-link"><i class="ph-bold ph-briefcase"></i> <span data-i18n="nav_my_crisis">My Crises</span></a>
+                    <a href="reports.html" class="menu-link"><i class="ph-bold ph-file-text"></i> <span data-i18n="nav_reports">Reports</span></a>
+                    <a href="settings.html" class="menu-link active"><i class="ph-bold ph-gear"></i> <span data-i18n="nav_settings">Settings</span></a>
+                    <a href="profile.html" class="menu-link"><i class="ph-bold ph-user-circle"></i> <span data-i18n="nav_profile">Profile</span></a>
+                    <a href="#" class="menu-link" id="btn-start-tutorial" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: 8px; padding-top: 12px; color: #10b981;">
+                        <i class="ph-bold ph-magic-wand"></i> <span data-i18n="nav_tutorial">Quick Tutorial</span>
+                    </a>
+                </div>
+                <div class="menu-recent-activity">
+                    <h3 data-i18n="nav_activity">Recent System Activity</h3>
+                    <div id="sidebar-activity-list" class="sidebar-activity-list">
+                        <!-- Activities will be injected here by JS -->
+                        <div class="sidebar-activity-placeholder" data-i18n="nav_no_activity">No activities recorded in this session</div>
+                    </div>
+                </div>
+                <div class="menu-footer">
+                    <a href="#" class="logout-btn"><i class="ph-bold ph-sign-out"></i> <span data-i18n="nav_logout">Log Out</span></a>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <header class="app-header">
+            <div class="header-left">
+                <button id="menu-toggle" class="icon-btn"><i class="ph-bold ph-list"></i></button>
+                <h1 class="app-title">Settings</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <button id="help-trigger" class="icon-btn" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-question"></i>
+                </button>
+                <div class="profile-pic">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            
+            <!-- Profile Overview Hero -->
+            <div class="setting-card profile-hero" style="display: flex; align-items: center; gap: 20px; cursor: pointer;" onclick="window.location.href='profile.html'">
+                <div class="menu-user-avatar" style="width: 80px; height: 80px; border-radius: 20px;">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=120&h=120&fit=crop" alt="Profile" class="profile-pic-img">
+                </div>
+                <div style="flex: 1;">
+                    <h2 class="profile-display-name" style="font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">User</h2>
+                    <p class="profile-display-role" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Crisis Responder</p>
+                    <div style="display: inline-flex; align-items: center; gap: 4px; color: var(--primary-blue); font-size: 0.8rem; font-weight: 700; margin-top: 8px; padding: 4px 10px; background: rgba(59, 130, 246, 0.1); border-radius: 20px;">
+                        <i class="ph-bold ph-pencil-simple"></i> Edit Profile
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="setting-card">
+                <span class="setting-card-title">System Notifications</span>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-icon-box"><i class="ph-bold ph-bell-ringing"></i></div>
+                        <div class="setting-text">
+                            <h4>Critical Alerts</h4>
+                            <p>Real-time emergency push notifications</p>
+                        </div>
+                    </div>
+                    <div class="premium-toggle on"><div class="toggle-knob"></div></div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-icon-box"><i class="ph-bold ph-speaker-high"></i></div>
+                        <div class="setting-text">
+                            <h4>Crisis Voice-Over</h4>
+                            <p>Audio-guided evacuation protocols</p>
+                        </div>
+                    </div>
+                    <div class="premium-toggle on"><div class="toggle-knob"></div></div>
+                </div>
+            </div>
+
+            <!-- Privacy & Security Section -->
+            <div class="setting-card">
+                <span class="setting-card-title">Privacy & Security</span>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-icon-box" style="background:#fee2e2; color:var(--fire);"><i class="ph-bold ph-map-pin"></i></div>
+                        <div class="setting-text">
+                            <h4>Location Sharing</h4>
+                            <p>Active only during emergency response</p>
+                        </div>
+                    </div>
+                    <div class="premium-toggle on"><div class="toggle-knob"></div></div>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-icon-box" style="background:#f1f5f9; color:var(--text-dark);"><i class="ph-bold ph-shield-check"></i></div>
+                        <div class="setting-text">
+                            <h4>Two-Factor Security</h4>
+                            <p>Bio-metric or email verification</p>
+                        </div>
+                    </div>
+                    <button class="icon-btn haptic-btn"><i class="ph-bold ph-caret-right"></i></button>
+                </div>
+            </div>
+
+            <!-- App Preferences Section -->
+            <div class="setting-card">
+                <span class="setting-card-title">Interface Preferences</span>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-icon-box" style="background:#eff6ff;"><i class="ph-bold ph-moon"></i></div>
+                        <div class="setting-text">
+                            <h4>Mission Dark Mode</h4>
+                            <p>Optimized for low-light environments</p>
+                        </div>
+                    </div>
+                    <div id="theme-toggle-btn" class="premium-toggle haptic-btn"><div class="toggle-knob"></div></div>
+                </div>
+                
+                <div class="setting-item" id="btn-change-language" style="cursor: pointer; margin-top: 16px;">
+                    <div class="setting-info">
+                        <div class="setting-icon-box" style="background:#e0e7ff; color:var(--primary-blue);"><i class="ph-bold ph-translate"></i></div>
+                        <div class="setting-text">
+                            <h4 data-i18n="lang_preference">Language Preference</h4>
+                            <p id="current-language-display">English</p>
+                        </div>
+                    </div>
+                    <button class="icon-btn haptic-btn"><i class="ph-bold ph-caret-right"></i></button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="app-nav">
+            <button class="nav-item">
+                <i class="ph-bold ph-house"></i>
+                <span data-i18n="nav_home">Home</span>
+            </button>
+            <button class="nav-item">
+                <div class="nav-badge">1</div>
+                <i class="ph-bold ph-briefcase"></i>
+                <span data-i18n="nav_my_crisis">My Crisis</span>
+            </button>
+            <button id="voice-btn" class="nav-mic-btn">
+                <div class="mic-inner">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-file-text"></i>
+                <span data-i18n="nav_reports">Reports</span>
+            </button>
+            <button class="nav-item active">
+                <i class="ph-fill ph-gear"></i>
+                <span data-i18n="nav_settings">Settings</span>
+            </button>
+        </nav>
+
+        <!-- Smart Recommendation Modal (Reused) -->
+        <div id="recommendation-modal" class="modal-overlay">
+            <div class="modal-content glass-card">
+                <div class="modal-header">
+                    <div class="ai-badge"><i class="ph-fill ph-sparkles"></i> AI Recommendation</div>
+                    <button id="close-recommendation" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h2 id="rec-title">Detected Crisis</h2>
+                    <p id="rec-desc">Are you experiencing a situation? Here is the suggested response flow.</p>
+                    <div id="rec-suggestion" class="suggestion-box"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-cancel-rec" class="btn-secondary">Ignore</button>
+                    <button id="btn-approve-rec" class="btn-primary">Start Flow</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module" src="i18n.js"></script>
+    <script type="module">
+        import { showLanguagePicker, getNativeLanguageName, getCurrentLanguage } from './i18n.js';
+
+        // Set initial language display
+        const langDisplay = document.getElementById('current-language-display');
+        if (langDisplay) {
+            langDisplay.textContent = getNativeLanguageName(getCurrentLanguage());
+        }
+
+        // Open language picker
+        document.getElementById('btn-change-language')?.addEventListener('click', () => {
+            showLanguagePicker();
+        });
+
+        // Listen for language changes to update the display
+        document.addEventListener('languageChanged', (e) => {
+            if (langDisplay) {
+                langDisplay.textContent = getNativeLanguageName(e.detail.langCode);
+            }
+        });
+    </script>
+    <script>
+        // Premium toggle interactivity
+        document.querySelectorAll('.premium-toggle:not(#theme-toggle-btn)').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('on');
+                // Haptic feedback feel
+                toggle.style.transform = 'scale(0.95)';
+                setTimeout(() => toggle.style.transform = 'scale(1)', 100);
+            });
+        });
+    </script>
+</body>
+</html>

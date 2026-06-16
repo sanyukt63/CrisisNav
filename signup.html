@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    <style>
+        .app-container {
+            background: var(--bg-color); /* Use global background */
+        }
+        .decorator {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .decorator-1 {
+            width: 250px;
+            height: 250px;
+            background: rgba(59, 130, 246, 0.4);
+            top: -50px;
+            left: -50px;
+        }
+        .decorator-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(168, 85, 247, 0.3);
+            bottom: -50px;
+            right: -50px;
+        }
+        .auth-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 8px 16px 40px; /* Reduced vertical padding */
+            position: relative;
+            z-index: 1;
+            overflow-y: auto;
+        }
+        .auth-container::-webkit-scrollbar {
+            width: 0;
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 16px 16px; /* Reduced padding */
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+        .auth-logo {
+            width: 48px; /* Smaller logo */
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-blue), #6366f1);
+            color: var(--white);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 8px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+        .auth-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem; /* Smaller font */
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Tighter gap */
+            text-align: left;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .input-group {
+            flex: 1;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Reduced gap between label and input */
+        }
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-left: 4px;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper i.icon-left {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 10px 10px 10px 40px; /* Reduced vertical padding */
+            border: 1.5px solid #e2e8f0;
+            border-radius: 11px;
+            font-size: 0.88rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            font-family: var(--font-main);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .input-wrapper select {
+            padding-right: 36px;
+            cursor: pointer;
+        }
+        .select-icon {
+            position: absolute;
+            right: 14px;
+            color: #94a3b8;
+            pointer-events: none;
+            font-size: 18px;
+        }
+        .input-wrapper:focus-within input, .input-wrapper:focus-within select {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: var(--white);
+        }
+        .input-wrapper:focus-within i.icon-left {
+            color: var(--primary-blue);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-blue), #6366f1);
+            color: var(--white);
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            margin-top: 4px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .auth-submit-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 5px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Google Sign-In Button */
+        .google-auth-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .google-auth-btn:hover {
+            background: #f9fafb;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .google-auth-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 12px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .section-divider:not(:empty)::before {
+            margin-right: 1rem;
+        }
+        .section-divider:not(:empty)::after {
+            margin-left: 1rem;
+        }
+
+        .auth-links {
+            margin-top: 24px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .auth-links a {
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-decoration: none;
+            position: relative;
+        }
+        .auth-links a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--primary-blue);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: right;
+        }
+        .auth-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        .section-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0 10px;
+            color: var(--primary-blue);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .section-divider::before, .section-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        .section-divider:not(:empty)::before {
+            margin-right: .75em;
+        }
+        .section-divider:not(:empty)::after {
+            margin-left: .75em;
+        }
+
+        /* Animated Tooltip Guide */
+        .auth-form {
+            position: relative;
+        }
+        .input-wrapper.active-guide {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2) !important;
+            animation: pulse-guide 2s infinite;
+            background: white;
+        }
+        @keyframes pulse-guide {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .form-tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            left: 0;
+            transform: translateY(10px);
+        }
+        .form-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .form-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #10b981 transparent transparent transparent;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Decorative Background Entities -->
+            <div class="decorator decorator-1"></div>
+            <div class="decorator decorator-2"></div>
+
+        <!-- Header -->
+        <header class="app-header" style="position: relative; z-index: 2;">
+            <div class="header-left">
+                <button onclick="history.back()" class="icon-btn"><i class="ph-bold ph-arrow-left"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo"><i class="ph-fill ph-user-plus"></i></div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join Crisis Navigation to stay safe</p>
+                
+                <form class="auth-form" id="signup-form">
+                    <div id="floating-tooltip" class="form-tooltip"></div>
+                    
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="ph-bold ph-user icon-left"></i>
+                            <input type="text" id="signup-fname" placeholder="John Doe" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Phone Number</label>
+                            <div class="input-wrapper">
+                                <i class="ph-bold ph-phone icon-left"></i>
+                                <input type="tel" id="signup-phone" placeholder="+1234567890" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Blood Group</label>
+                            <div class="input-wrapper">
+                                <i class="ph-bold ph-drop icon-left" style="color: #ef4444;"></i>
+                                <select id="signup-blood" required>
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                                <i class="ph-bold ph-caret-down select-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="ph-bold ph-envelope-simple icon-left"></i>
+                            <input type="email" id="signup-email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">Emergency Contact</div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label>Name</label>
+                            <div class="input-wrapper">
+                                <i class="ph-bold ph-users icon-left"></i>
+                                <input type="text" id="signup-ec-name" placeholder="Jane Doe" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Phone</label>
+                            <div class="input-wrapper">
+                                <i class="ph-bold ph-phone icon-left"></i>
+                                <input type="tel" id="signup-ec-phone" placeholder="+1234567890" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">Security</div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="ph-bold ph-lock-key icon-left"></i>
+                            <input type="password" id="signup-password" placeholder="Create a strong password" required minlength="8">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">Complete Sign Up</button>
+                    
+                    <div class="section-divider">OR</div>
+                    
+                    <button type="button" id="google-signup" class="google-auth-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        Sign up with Google
+                    </button>
+                </form>
+
+                <div class="auth-links">
+                    Already have an account? <a href="signin.html">Sign In</a>
+                </div>
+            </div>
+        </main>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './auth_service.js'
+
+        // Reset onboarding state for a fresh new-user experience
+        function resetNewUserState() {
+            const preserve = ['crisisnav_theme', 'crisisnav_profile_name', 'crisisnav_profile_role', 'crisisnav_profile_pic', 'crisisnav_activity_logs'];
+            const toRemove = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key) continue;
+                if (key.startsWith('tour_completed_') || key === 'showSignupGuide' || key === 'showLoginToast' || key === 'isNewUser' || key === 'isLoggedIn') {
+                    toRemove.push(key);
+                }
+            }
+
+            toRemove.forEach(key => localStorage.removeItem(key));
+            localStorage.setItem('isNewUser', 'true');
+            localStorage.setItem('showSignupGuide', 'true');
+            console.log('New user mode enabled: cleared old onboarding state.');
+        }
+
+        resetNewUserState();
+
+        // Interactive Animated Form Guide
+        const guideSteps = [
+            { id: 'signup-fname', message: 'First, what\'s your full name?' },
+            { id: 'signup-phone', message: 'Enter your phone number' },
+            { id: 'signup-blood', message: 'Crucial for medical emergencies' },
+            { id: 'signup-email', message: 'Your email address' },
+            { id: 'signup-ec-name', message: 'Who to contact in an emergency?' },
+            { id: 'signup-ec-phone', message: 'Their phone number' },
+            { id: 'signup-password', message: 'Create a secure password' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tooltip = document.getElementById('floating-tooltip');
+            
+            function updateGuideFor(inputElement) {
+                const step = guideSteps.find(s => s.id === inputElement.id);
+                if (!step) return;
+                
+                // Clear active states
+                document.querySelectorAll('.input-wrapper.active-guide').forEach(el => el.classList.remove('active-guide'));
+                
+                const wrapper = inputElement.closest('.input-wrapper');
+                const group = inputElement.closest('.input-group');
+                
+                wrapper.classList.add('active-guide');
+                tooltip.innerHTML = `<i class="ph-fill ph-check-circle"></i> ${step.message}`;
+                
+                // Position tooltip accurately relative to .auth-form
+                tooltip.style.top = (group.offsetTop - 36) + 'px';
+                tooltip.style.left = group.offsetLeft + 'px';
+                tooltip.classList.add('visible');
+                
+                // Ensure it's in view on smaller screens
+                group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            guideSteps.forEach((step, index) => {
+                const input = document.getElementById(step.id);
+                if(!input) return;
+                
+                // Show tooltip when focusing on input box
+                input.addEventListener('focus', () => {
+                    updateGuideFor(input);
+                });
+
+                // Auto-advance to next box on Enter
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (index < guideSteps.length - 1) {
+                            document.getElementById(guideSteps[index + 1].id).focus();
+                        } else {
+                            // If last input and valid, could try submitting or blurring
+                            input.blur();
+                        }
+                    }
+                });
+
+                // Hide tooltip when moving out of inputs entirely
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+                            tooltip.classList.remove('visible');
+                            document.querySelectorAll('.input-wrapper.active-guide').forEach(el => el.classList.remove('active-guide'));
+                        }
+                    }, 50);
+                });
+            });
+
+            // Start guide sequence on first input automatically after slight delay
+            setTimeout(() => {
+                const firstInput = document.getElementById(guideSteps[0].id);
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 800);
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            
+            // Get values
+            const fullName = document.getElementById('signup-fname').value;
+            const phone = document.getElementById('signup-phone').value;
+            const bloodGroup = document.getElementById('signup-blood').value;
+            const email = document.getElementById('signup-email').value;
+            const emergencyName = document.getElementById('signup-ec-name').value;
+            const emergencyPhone = document.getElementById('signup-ec-phone').value;
+            const password = document.getElementById('signup-password').value;
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating Account...';
+
+                // 1. Supabase Auth Sign Up (passes all data to our database trigger)
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            phone: phone,
+                            blood_group: bloodGroup,
+                            emergency_contact_name: emergencyName,
+                            emergency_contact_phone: emergencyPhone
+                        }
+                    }
+                });
+
+                if (authError) throw authError;
+
+                const user = authData.user;
+                if (!user) throw new Error('No user data returned.');
+
+                // 2. Success (The Profile is now created automatically by the database trigger!)
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('crisisnav_profile_name', fullName);
+                localStorage.setItem('crisisnav_profile_role', 'Crisis Responder'); // Default role for new users
+                localStorage.setItem('showSignupGuide', 'true');
+                localStorage.setItem('showLoginToast', 'true');
+                localStorage.setItem('isNewUser', 'true');
+                
+                alert('Account created successfully! Welcome to CrisisNav.');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Registration Error:', err.message);
+                alert('Registration Failed: ' + err.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Complete Sign Up';
+            }
+        });
+
+        // Google OAuth Logic
+        document.getElementById('google-signup').addEventListener('click', async () => {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/index.html'
+                }
+            });
+            if (error) {
+                console.error('Google Auth Error:', error.message);
+                alert('Google Sign-In Failed: ' + error.message);
+            }
+        });
+
+    </script>
+</body>
+</html>

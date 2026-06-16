@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration (Clean Setup) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    
+    <script type="module">
+        import { supabase } from './auth_service.js'
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!session && localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('signin.html');
+        } else if (session) {
+            // Ensure localStorage reflects Supabase state for legacy code
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            // UI Polishing: Show Profile Pic & Handle User Info
+            const user = session.user;
+            const metadata = user.user_metadata || {};
+            const profilePicDiv = document.getElementById('profile-pic');
+            
+            if (metadata.full_name) {
+                localStorage.setItem('crisisnav_profile_name', metadata.full_name);
+            }
+
+            if (profilePicDiv) {
+                profilePicDiv.style.display = 'flex';
+                // If user has a Google avatar, use it
+                const googleAvatar = metadata.avatar_url;
+                if (googleAvatar) {
+                    profilePicDiv.querySelector('img').src = googleAvatar;
+                    localStorage.setItem('crisisnav_profile_pic', googleAvatar);
+                }
+            }
+        }
+
+        // Handle Logout
+        document.querySelectorAll('.logout-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                localStorage.removeItem('isLoggedIn');
+                window.location.replace('signin.html');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Layout Start -->
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="side-menu" id="side-menu">
+                <div class="menu-header" style="position: relative;">
+                    <button class="close-menu-btn icon-btn" style="position: absolute; right: 0; top: 0; background: transparent; color: var(--text-muted); border: none; font-size: 1.25rem; cursor: pointer; padding: 4px;"><i class="ph-bold ph-x"></i></button>
+                    <div class="menu-logo">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <h2>CrisisNav</h2>
+                    </div>
+                    
+                    <div class="menu-user-info">
+                        <div class="menu-user-avatar">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Avatar" class="profile-pic-img">
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="profile-display-name">User</h3>
+                            <p class="profile-display-role">Crisis Responder</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-links">
+                    <a href="index.html" class="menu-link active"><i class="ph-bold ph-house"></i> <span data-i18n="nav_home">Home</span></a>
+                    <a href="my-crises.html" class="menu-link"><i class="ph-bold ph-briefcase"></i> <span data-i18n="nav_my_crisis">My Crises</span></a>
+                    <a href="reports.html" class="menu-link"><i class="ph-bold ph-file-text"></i> <span data-i18n="nav_reports">Reports</span></a>
+                    <a href="settings.html" class="menu-link"><i class="ph-bold ph-gear"></i> <span data-i18n="nav_settings">Settings</span></a>
+                    <a href="profile.html" class="menu-link"><i class="ph-bold ph-user-circle"></i> <span data-i18n="nav_profile">Profile</span></a>
+                    <a href="#" class="menu-link" id="btn-start-tutorial" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: 8px; padding-top: 12px; color: #10b981;">
+                        <i class="ph-bold ph-magic-wand"></i> <span data-i18n="nav_tutorial">Quick Tutorial</span>
+                    </a>
+                </div>
+                <div class="menu-recent-activity">
+                    <h3 data-i18n="nav_activity">Recent System Activity</h3>
+                    <div id="sidebar-activity-list" class="sidebar-activity-list">
+                        <!-- Activities will be injected here by JS -->
+                        <div class="sidebar-activity-placeholder" data-i18n="nav_no_activity">No activities recorded in this session</div>
+                    </div>
+                </div>
+                <div class="menu-footer">
+                    <a href="#" class="logout-btn"><i class="ph-bold ph-sign-out"></i> <span data-i18n="nav_logout">Log Out</span></a>
+                </div>
+            </div>
+            <!-- Header -->
+            <header class="app-header">
+            <div class="header-left">
+                <button id="menu-toggle" class="icon-btn"><i class="ph-bold ph-list"></i></button>
+                <h1 class="app-title">Crisis Navigation System</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <button id="help-trigger" class="icon-btn" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-question"></i>
+                </button>
+                <div class="profile-pic" id="profile-pic" style="display: none;">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <i class="ph-bold ph-magnifying-glass search-icon"></i>
+                <input type="text" id="crisis-search" data-i18n="search_placeholder" placeholder="Search for a crisis or protocol..." autocomplete="off">
+                <div class="voice-indicator">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </div>
+
+            <!-- Emergency Advice Banner -->
+            <div class="setting-card" style="background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); border: none; color: white; display: flex; align-items: center; gap: 16px; padding: 20px; width: 100%; box-sizing: border-box; flex-shrink: 0;">
+                <div class="setting-icon-box" style="background: rgba(255,255,255,0.2); color: white; width: 50px; height: 50px; min-width: 50px; font-size: 24px; border-radius: 14px;">
+                    <i class="ph-fill ph-warning-octagon"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h2 data-i18n="mission_protocol" style="font-size: 1.1rem; font-weight: 800; margin-bottom: 2px; font-family: var(--font-heading); color: white;">Mission Protocol Active</h2>
+                    <p data-i18n="remain_calm" style="font-size: 0.8rem; opacity: 0.9; font-weight: 500; color: rgba(255,255,255,0.9); line-height: 1.3;">Remain calm. Execute instructions with precision.</p>
+                </div>
+            </div>
+
+            <!-- Crisis Categories -->
+            <section class="crisis-section">
+                <div class="category-grid" id="category-grid">
+                    <button class="category-btn fire" data-crisis="fire">
+                        <div class="category-icon"><i class="ph-fill ph-fire"></i></div>
+                        <span data-i18n="cat_fire">Fire</span>
+                    </button>
+                    <button class="category-btn accident" data-crisis="accident">
+                        <div class="category-icon"><i class="ph-fill ph-car"></i></div>
+                        <span data-i18n="cat_accident">Accident</span>
+                    </button>
+                    <button class="category-btn chemical" data-crisis="chemical">
+                        <div class="category-icon"><i class="ph-fill ph-flask"></i></div>
+                        <span data-i18n="cat_chemical">Chemical Leak</span>
+                    </button>
+                    <button class="category-btn medical" data-crisis="medical">
+                        <div class="category-icon"><i class="ph-fill ph-plus-circle"></i></div>
+                        <span data-i18n="cat_medical">Medical</span>
+                    </button>
+                </div>
+                <button class="report-other-btn" data-i18n="report_other">Report Other Crisis</button>
+            </section>
+
+            <!-- Active Steps Display -->
+            <section class="steps-section" id="steps-section">
+                <div class="section-header">
+                    <div class="header-info">
+                        <div class="step-count-badge">4</div>
+                        <div class="header-text">
+                            <h3 data-i18n="active_protocol">Active Protocol Progress</h3>
+                            <p id="current-step-mini">Step 1: Pull the Alarm</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="steps-list" id="steps-list">
+                    <div class="step-card active" data-step="0">
+                        <div class="step-card-icon fire"><i class="ph-fill ph-fire"></i></div>
+                        <div class="step-card-body">
+                            <h3>Step 1: Sound the Alarm</h3>
+                            <p>Pull the nearest fire alarm and call the fire department immediately.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="1">
+                        <div class="step-card-icon warning"><i class="ph-fill ph-warning-octagon"></i></div>
+                        <div class="step-card-body">
+                            <h3>Step 2: Close Gas Valves</h3>
+                            <p>If safe, isolate the fuel source to prevent further damage.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="2">
+                        <div class="step-card-icon info"><i class="ph-fill ph-stairs"></i></div>
+                        <div class="step-card-body">
+                            <h3>Step 3: Use Emergency Stairs</h3>
+                            <p>Avoid all elevators during the alarm. Guide others to the exits.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="3">
+                        <div class="step-card-icon" style="background: #dcfce7; color: #16a34a;"><i class="ph-fill ph-check-circle"></i></div>
+                        <div class="step-card-body">
+                            <h3>Step 4: Assembly Point</h3>
+                            <p>Gather at the designated assembly point and await headcount.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-progress-dots" id="step-progress-dots">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+            </section>
+
+            <button class="next-step-btn" id="next-step-btn">
+                <span data-i18n="next_step">Next Step</span>
+                <i class="ph-bold ph-caret-right"></i>
+                <small id="next-step-hint">Close Gas Valves</small>
+            </button>
+
+        </main>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="app-nav">
+            <button class="nav-item active">
+                <i class="ph-fill ph-house"></i>
+                <span data-i18n="nav_home">Home</span>
+            </button>
+            <button class="nav-item">
+                <div class="nav-badge">5</div>
+                <i class="ph-bold ph-briefcase"></i>
+                <span data-i18n="nav_my_crisis">My Crisis</span>
+            </button>
+            <button id="voice-btn" class="nav-mic-btn">
+                <div class="mic-inner">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-file-text"></i>
+                <span data-i18n="nav_reports">Reports</span>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-gear"></i>
+                <span data-i18n="nav_settings">Settings</span>
+            </button>
+        </nav>
+        <!-- Modals and Overlays go here to stay inside the frame -->
+
+    <!-- Smart Recommendation Modal -->
+    <div id="recommendation-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <div class="ai-badge"><i class="ph-fill ph-sparkles"></i> AI Recommendation</div>
+                <button id="close-recommendation" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2 id="rec-title">Detected Crisis</h2>
+                <p id="rec-desc">Are you experiencing a situation? Here is the suggested response flow.</p>
+                <div id="rec-suggestion" class="suggestion-box">
+                    <!-- Suggestion content -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-cancel-rec" class="btn-secondary">Ignore</button>
+                <button id="btn-approve-rec" class="btn-primary">Start Flow</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div id="onboard-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <div class="ai-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                    <i class="ph-fill ph-check-circle"></i> Welcome
+                </div>
+                <button onclick="document.getElementById('onboard-modal').classList.remove('active')" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);">
+                    <i class="ph-fill ph-hand-waving"></i>
+                </div>
+                <h2 style="font-family: var(--font-heading); margin-bottom: 8px;">You're ready to go!</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                    Welcome to CrisisNav. Here are a few things you can do to get started:
+                </p>
+                <div style="text-align: left; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; gap: 12px; align-items: flex-start; background: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: 12px;">
+                        <i class="ph-fill ph-microphone" style="color: var(--primary-blue); font-size: 20px;"></i>
+                        <div>
+                            <strong style="display: block; font-size: 0.9rem;">Voice Commands</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted)">Use the glowing mic to report crises hands-free.</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: flex-start; background: rgba(168, 85, 247, 0.05); padding: 12px; border-radius: 12px;">
+                        <i class="ph-fill ph-briefcase" style="color: #a855f7; font-size: 20px;"></i>
+                        <div>
+                            <strong style="display: block; font-size: 0.9rem;">My Crises</strong>
+                            <span style="font-size: 0.8rem; color: var(--text-muted)">Track active and past incidents from the bottom bar.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="document.getElementById('onboard-modal').classList.remove('active')" class="btn-primary" style="width: 100%;">Get Started</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script type="module" src="i18n.js"></script>
+    <script>
+        // Step Card Cycling Logic
+        (function() {
+            let currentStep = 0;
+            const cards = document.querySelectorAll('.step-card');
+            const dots = document.querySelectorAll('.progress-dot');
+            const btn = document.getElementById('next-step-btn');
+            const hint = document.getElementById('next-step-hint');
+            const mini = document.getElementById('current-step-mini');
+            const titles = ['Sound the Alarm', 'Close Gas Valves', 'Use Emergency Stairs', 'Assembly Point'];
+
+            if (!btn || cards.length === 0) return;
+
+            btn.addEventListener('click', function() {
+                // Exit current card
+                cards[currentStep].classList.remove('active');
+                cards[currentStep].classList.add('exit-left');
+                dots[currentStep].classList.remove('active');
+
+                // Move to next
+                currentStep = (currentStep + 1) % cards.length;
+
+                // Enter new card
+                cards[currentStep].classList.add('enter-right');
+                dots[currentStep].classList.add('active');
+
+                setTimeout(function() {
+                    cards.forEach(c => { c.classList.remove('exit-left', 'enter-right'); });
+                    cards[currentStep].classList.add('active');
+                }, 50);
+
+                // Update labels
+                mini.textContent = 'Step ' + (currentStep + 1) + ': ' + titles[currentStep];
+                const nextIdx = (currentStep + 1) % cards.length;
+                hint.textContent = titles[nextIdx];
+            });
+        })();
+    </script>
+</body>
+</html>

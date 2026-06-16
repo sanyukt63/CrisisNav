@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    
+    <style>
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 32px 24px 24px;
+            background: var(--bg-color); /* Updated */
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .profile-img-container img {
+            width: 110px;
+            height: 110px;
+            border-radius: 30px; /* More modern squircle */
+            object-fit: cover;
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow-deep);
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            background: rgba(0,0,0,0.02);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            border-color: var(--primary-blue);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Layout Start -->
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="side-menu" id="side-menu">
+                <div class="menu-header" style="position: relative;">
+                    <button class="close-menu-btn icon-btn" style="position: absolute; right: 0; top: 0; background: transparent; color: var(--text-muted); border: none; font-size: 1.25rem; cursor: pointer; padding: 4px;"><i class="ph-bold ph-x"></i></button>
+                    <div class="menu-logo">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <h2>CrisisNav</h2>
+                    </div>
+                    <div class="menu-user-info">
+                        <div class="menu-user-avatar">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Avatar" class="profile-pic-img">
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="profile-display-name">User</h3>
+                            <p class="profile-display-role">Crisis Responder</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-links">
+                    <a href="index.html" class="menu-link"><i class="ph-bold ph-house"></i> <span data-i18n="nav_home">Home</span></a>
+                    <a href="my-crises.html" class="menu-link"><i class="ph-bold ph-briefcase"></i> <span data-i18n="nav_my_crisis">My Crises</span></a>
+                    <a href="reports.html" class="menu-link"><i class="ph-bold ph-file-text"></i> <span data-i18n="nav_reports">Reports</span></a>
+                    <a href="settings.html" class="menu-link"><i class="ph-bold ph-gear"></i> <span data-i18n="nav_settings">Settings</span></a>
+                    <a href="profile.html" class="menu-link active"><i class="ph-bold ph-user-circle"></i> <span data-i18n="nav_profile">Profile</span></a>
+                    <a href="#" class="menu-link" id="btn-start-tutorial" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: 8px; padding-top: 12px; color: #10b981;">
+                        <i class="ph-bold ph-magic-wand"></i> <span data-i18n="nav_tutorial">Quick Tutorial</span>
+                    </a>
+                </div>
+                <div class="menu-recent-activity">
+                    <h3 data-i18n="nav_activity">Recent System Activity</h3>
+                    <div id="sidebar-activity-list" class="sidebar-activity-list">
+                        <!-- Activities will be injected here by JS -->
+                        <div class="sidebar-activity-placeholder" data-i18n="nav_no_activity">No activities recorded in this session</div>
+                    </div>
+                </div>
+                <div class="menu-footer">
+                    <a href="#" class="logout-btn"><i class="ph-bold ph-sign-out"></i> <span data-i18n="nav_logout">Log Out</span></a>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <header class="app-header">
+            <div class="header-left">
+                <button id="menu-toggle" class="icon-btn"><i class="ph-bold ph-list"></i></button>
+                <h1 class="app-title">Profile</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <button id="help-trigger" class="icon-btn" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-question"></i>
+                </button>
+                <div class="profile-pic" id="profile-pic-header">
+                    <img id="header-profile-pic-img" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="setting-card profile-hero-card" style="text-align: center; padding: 40px 20px;">
+                <div class="profile-img-container" id="upload-trigger" style="margin: 0 auto 20px; width: 120px; height: 120px; position: relative; cursor: pointer; border: 4px solid var(--white); box-shadow: var(--shadow-deep); border-radius: 30px; overflow: hidden;">
+                    <img id="profile-preview" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&h=200&fit=crop" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="upload-icon" style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; color: white; font-size: 24px;">
+                        <i class="ph-bold ph-camera"></i>
+                    </div>
+                </div>
+                <input type="file" id="file-upload" style="display: none;" accept="image/*">
+                
+                <h2 id="profile-name-display" style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">User Name</h2>
+                <p id="profile-role-display" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Crisis Responder</p>
+            </div>
+
+            <div class="setting-card">
+                <span class="setting-card-title">Identity Details</span>
+                <form id="profile-form" class="profile-details">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Full Name</label>
+                        <input type="text" id="input-name" class="form-input" placeholder="Enter your full name" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: var(--font-main); font-size: 0.95rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Operational Role</label>
+                        <input type="text" id="input-role" class="form-input" placeholder="Enter your role" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: var(--font-main); font-size: 0.95rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Secure Email</label>
+                        <input type="email" id="input-email" class="form-input" placeholder="Enter your email" readonly style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: #f8fafc; color: #94a3b8; font-family: var(--font-main); font-size: 0.95rem;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Phone</label>
+                            <input type="tel" id="input-phone" class="form-input" placeholder="+1..." style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: var(--font-main); font-size: 0.95rem;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Blood Group</label>
+                            <input type="text" id="input-blood" class="form-input" placeholder="O+" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-family: var(--font-main); font-size: 0.95rem;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-btn haptic-btn" style="width: 100%; background: var(--primary-blue); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: var(--shadow-glow);">
+                        <i class="ph-bold ph-floppy-disk"></i> Synchronize Profile
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="app-nav">
+            <button class="nav-item" onclick="window.location.href='index.html'">
+                <i class="ph-bold ph-house"></i>
+                <span data-i18n="nav_home">Home</span>
+            </button>
+            <button class="nav-item" onclick="window.location.href='my-crises.html'">
+                <div class="nav-badge">1</div>
+                <i class="ph-bold ph-briefcase"></i>
+                <span data-i18n="nav_my_crisis">My Crisis</span>
+            </button>
+            <button id="voice-btn" class="nav-mic-btn">
+                <div class="mic-inner">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </button>
+            <button class="nav-item" onclick="window.location.href='reports.html'">
+                <i class="ph-bold ph-file-text"></i>
+                <span data-i18n="nav_reports">Reports</span>
+            </button>
+            <button class="nav-item active" onclick="window.location.href='profile.html'">
+                <i class="ph-bold ph-user-circle"></i>
+                <span>Profile</span>
+            </button>
+        </nav>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script type="module" src="i18n.js"></script>
+    <script type="module">
+        import { supabase } from './auth_service.js'
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const fileUpload = document.getElementById('file-upload');
+            const uploadTrigger = document.getElementById('upload-trigger');
+            const profilePreview = document.getElementById('profile-preview');
+            const headerProfilePic = document.getElementById('header-profile-pic');
+            const profileForm = document.getElementById('profile-form');
+            
+            const inputName = document.getElementById('input-name');
+            const inputRole = document.getElementById('input-role');
+            const inputEmail = document.getElementById('input-email');
+            const inputPhone = document.getElementById('input-phone');
+            const inputBlood = document.getElementById('input-blood');
+            
+            const displayTitle = document.getElementById('profile-name-display');
+            const displayRole = document.getElementById('profile-role-display');
+
+            // 1. Check Session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.replace('signin.html');
+                return;
+            }
+            localStorage.setItem('isLoggedIn', 'true');
+
+            const user = session.user;
+            const metadata = user.user_metadata || {};
+            inputEmail.value = user.email;
+
+            // 2. Load Profile Data
+            const loadProfileData = async () => {
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.warn('Profile fetch error:', error.message);
+                }
+
+                // Sync Strategy: Profile DB Table > Google Metadata > Default
+                const fullName = profile?.full_name || metadata.full_name || '';
+                const avatarUrl = profile?.avatar_url || metadata.avatar_url || localStorage.getItem('crisisnav_profile_pic');
+                
+                inputName.value = fullName;
+                displayTitle.textContent = fullName || 'User';
+                
+                if (profile) {
+                    inputPhone.value = profile.phone || '';
+                    inputBlood.value = profile.blood_group || '';
+                }
+
+                if (avatarUrl) {
+                    profilePreview.src = avatarUrl;
+                    if (headerProfilePic) headerProfilePic.src = avatarUrl;
+                    localStorage.setItem('crisisnav_profile_pic', avatarUrl);
+                }
+
+                const role = localStorage.getItem('crisisnav_profile_role') || 'Crisis Responder';
+                inputRole.value = role;
+                displayRole.textContent = role;
+            };
+
+            await loadProfileData();
+
+            // Handle Logout
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.replace('signin.html');
+                });
+            });
+
+            // Handle image click
+            uploadTrigger.addEventListener('click', () => fileUpload.click());
+
+            // Handle image change
+            fileUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const dataUrl = event.target.result;
+                        profilePreview.src = dataUrl;
+                        if (headerProfilePic) headerProfilePic.src = dataUrl;
+                        localStorage.setItem('crisisnav_profile_pic', dataUrl);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Handle form save
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const saveBtn = profileForm.querySelector('.save-btn');
+                const originalText = saveBtn.innerHTML;
+
+                try {
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<i class="ph-bold ph-spinner-gap ph-spin"></i> Saving...';
+
+                    // Update Profiles table
+                    const { error } = await supabase
+                        .from('profiles')
+                        .upsert({
+                            id: user.id,
+                            full_name: inputName.value,
+                            phone: inputPhone.value,
+                            blood_group: inputBlood.value,
+                            updated_at: new Date()
+                        });
+
+                    if (error) throw error;
+
+                    localStorage.setItem('crisisnav_profile_role', inputRole.value);
+                    displayTitle.textContent = inputName.value || 'User';
+                    displayRole.textContent = inputRole.value || 'User';
+
+                    saveBtn.innerHTML = '<i class="ph-bold ph-check"></i> Saved!';
+                    saveBtn.style.background = '#16a34a';
+                    
+                    setTimeout(() => {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.style.background = 'var(--primary-blue)';
+                    }, 2000);
+
+                } catch (err) {
+                    console.error('Update Error:', err.message);
+                    alert('Update Failed: ' + err.message);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

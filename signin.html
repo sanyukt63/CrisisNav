@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    <style>
+        .app-container {
+            background: var(--bg-color); /* Use global background */
+        }
+
+        .decorator {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .decorator-1 {
+            width: 250px;
+            height: 250px;
+            background: rgba(59, 130, 246, 0.4);
+            top: -50px;
+            left: -50px;
+        }
+
+        .decorator-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(168, 85, 247, 0.3);
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 16px 20px; /* Reduced vertical padding */
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 20px; /* Reduced padding */
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .auth-logo {
+            width: 52px; /* Smaller logo */
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary-blue), #6366f1);
+            color: var(--white);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 12px;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .auth-title {
+            font-family: var(--font-heading);
+            font-size: 1.45rem; /* Smaller font */
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-dark);
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px; /* Reduced gap */
+            text-align: left;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px; /* Reduced gap */
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-left: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.icon-left {
+            position: absolute;
+            left: 16px;
+            color: #94a3b8;
+            font-size: 20px;
+            transition: color 0.3s ease;
+            pointer-events: none;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 11px 11px 11px 44px; /* Reduced vertical padding */
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            font-family: var(--font-main);
+        }
+
+        .input-wrapper:focus-within input {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: var(--white);
+        }
+
+        .input-wrapper:focus-within i.icon-left {
+            color: var(--primary-blue);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-blue), #6366f1);
+            color: var(--white);
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            margin-top: 4px;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .auth-submit-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 5px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Google Sign-In Button */
+        .google-auth-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .google-auth-btn:hover {
+            background: #f9fafb;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .google-auth-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 16px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .section-divider:not(:empty)::before {
+            margin-right: 1rem;
+        }
+        .section-divider:not(:empty)::after {
+            margin-left: 1rem;
+        }
+
+        .auth-links {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .auth-links a {
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .auth-links a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--primary-blue);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: right;
+        }
+
+        .auth-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        .auth-form {
+            position: relative;
+        }
+        .input-wrapper.active-guide {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+        .form-tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+        }
+        .form-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .form-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 18px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #10b981 transparent transparent transparent;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Decorative Background Entities -->
+            <div class="decorator decorator-1"></div>
+            <div class="decorator decorator-2"></div>
+
+        <!-- Header -->
+        <header class="app-header" style="position: relative; z-index: 2;">
+            <div class="header-left">
+                <button onclick="history.back()" class="icon-btn"><i class="ph-bold ph-arrow-left"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo"><i class="ph-fill ph-shield-check"></i></div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to access your dashboard</p>
+
+                <form class="auth-form" id="signin-form">
+                    <div id="floating-tooltip" class="form-tooltip"></div>
+                    <div class="input-group">
+                        <label>Email ID</label>
+                        <div class="input-wrapper">
+                            <i class="ph-bold ph-envelope-simple icon-left"></i>
+                            <input type="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="ph-bold ph-lock-key icon-left"></i>
+                            <input type="password" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="auth-submit-btn">Sign In</button>
+                    
+                    <div class="section-divider">OR</div>
+                    
+                    <button type="button" id="google-signin" class="google-auth-btn">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                        Sign in with Google
+                    </button>
+                </form>
+
+                <div class="auth-links">
+                    Don't have an account? <a href="signup.html">Sign Up</a>
+                </div>
+            </div>
+        </main>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './auth_service.js'
+
+        const guideTips = {
+            'email': 'Enter the email you used to sign up.',
+            'password': 'Type your secure password to continue.'
+        };
+
+        const tooltip = document.getElementById('floating-tooltip');
+        const inputs = {
+            email: document.querySelector('input[type="email"]'),
+            password: document.querySelector('input[type="password"]')
+        };
+
+        function showTooltip(input, message) {
+            const wrapper = input.closest('.input-wrapper');
+            const group = input.closest('.input-group');
+            document.querySelectorAll('.input-wrapper.active-guide').forEach(el => el.classList.remove('active-guide'));
+            wrapper.classList.add('active-guide');
+            tooltip.textContent = message;
+            tooltip.style.top = (group.offsetTop - 52) + 'px';
+            tooltip.style.left = group.offsetLeft + 'px';
+            tooltip.classList.add('visible');
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('visible');
+            document.querySelectorAll('.input-wrapper.active-guide').forEach(el => el.classList.remove('active-guide'));
+        }
+
+        Object.keys(inputs).forEach((key) => {
+            const input = inputs[key];
+            if (!input) return;
+
+            input.addEventListener('focus', () => {
+                showTooltip(input, guideTips[key]);
+            });
+
+            input.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (document.activeElement.tagName !== 'INPUT') {
+                        hideTooltip();
+                    }
+                }, 80);
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            if (tooltip.classList.contains('visible') && document.activeElement && document.activeElement.tagName === 'INPUT') {
+                const current = document.activeElement;
+                const group = current.closest('.input-group');
+                tooltip.style.top = (group.offsetTop - 52) + 'px';
+                tooltip.style.left = group.offsetLeft + 'px';
+            }
+        });
+
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = inputs.email.value;
+            const password = inputs.password.value;
+            const submitBtn = e.target.querySelector('button');
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Verifying...';
+
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // Success
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('showLoginToast', 'true');
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error('Authentication Error:', err.message);
+                alert('Authentication Failed: ' + err.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Google OAuth Logic
+        document.getElementById('google-signin').addEventListener('click', async () => {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/index.html'
+                }
+            });
+            if (error) {
+                console.error('Google Auth Error:', error.message);
+                alert('Google Sign-In Failed: ' + error.message);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                inputs.email?.focus();
+            }, 400);
+        });
+    </script>
+</body>
+
+</html>

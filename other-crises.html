@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Knowledge Base - CrisisNav</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    <style>
+        .knowledge-container {
+            padding: 24px 16px;
+            padding-bottom: 100px;
+        }
+        .crisis-card-full {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .crisis-card-full:hover {
+            transform: translateY(-4px);
+        }
+        .crisis-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .crisis-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .crisis-card-title h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+        .crisis-card-title span {
+            font-size: 0.75rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-block {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .info-block h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-block p {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+        .step-list-full {
+            margin-top: 16px;
+        }
+        .step-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .step-row:last-child {
+            border-bottom: none;
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .step-text h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .step-text p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .page-header-desc {
+            margin: -8px 0 24px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="side-menu" id="side-menu">
+                <!-- Side menu content same as index.html -->
+                <div class="menu-header">
+                    <div class="menu-logo">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <h2>CrisisNav</h2>
+                    </div>
+
+                    <div class="menu-user-info">
+                        <div class="menu-user-avatar">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Avatar" class="profile-pic-img">
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="profile-display-name">User</h3>
+                            <p class="profile-display-role">Crisis Responder</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-links">
+                    <a href="index.html" class="menu-link"><i class="ph-bold ph-house"></i> Home</a>
+                    <a href="my-crises.html" class="menu-link"><i class="ph-bold ph-briefcase"></i> My Crises</a>
+                    <a href="reports.html" class="menu-link"><i class="ph-bold ph-file-text"></i> Reports</a>
+                    <a href="settings.html" class="menu-link"><i class="ph-bold ph-gear"></i> Settings</a>
+                    <a href="profile.html" class="menu-link"><i class="ph-bold ph-user-circle"></i> Profile</a>
+                </div>
+                <div class="menu-footer">
+                    <a href="#" class="logout-btn"><i class="ph-bold ph-sign-out"></i> Log Out</a>
+                </div>
+            </div>
+
+            <!-- Layout Start -->
+        <header class="app-header">
+            <div class="header-left">
+                <button id="menu-toggle" class="icon-btn"><i class="ph-bold ph-list"></i></button>
+                <h1 class="app-title">Crisis Knowledge</h1>
+            </div>
+            <div class="header-right">
+                <div class="profile-pic">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="knowledge-container">
+                <p class="page-header-desc">Detailed stepwise protocols for all registered crisis situations.</p>
+                <div id="knowledge-list">
+                    <!-- Crisis protocols will be injected here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="app-nav">
+            <button class="nav-item">
+                <i class="ph-bold ph-house"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-briefcase"></i>
+                <span>My Crisis</span>
+            </button>
+            <button id="voice-btn" class="nav-mic-btn">
+                <div class="mic-inner">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-file-text"></i>
+                <span>Reports</span>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-gear"></i>
+                <span>Settings</span>
+            </button>
+        </nav>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Custom render for this page
+        window.addEventListener('DOMContentLoaded', () => {
+            // Wait for mockData to be available from app.js
+            const checkData = setInterval(() => {
+                if (typeof mockData !== 'undefined') {
+                    clearInterval(checkData);
+                    renderKnowledgeBase();
+                }
+            }, 100);
+        });
+
+        function renderKnowledgeBase() {
+            const container = document.getElementById('knowledge-list');
+            if (!container) return;
+
+            let globalStepCounter = 1;
+            
+            container.innerHTML = mockData.map(c => {
+                const crisisSteps = c.steps.map(s => {
+                    const stepNum = globalStepCounter++;
+                    return `
+                        <div class="step-row">
+                            <div class="step-number">${stepNum}</div>
+                            <div class="step-text">
+                                <h5>${s.title}</h5>
+                                <p>${s.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="crisis-card-full animate-fade-in">
+                        <div class="crisis-card-header">
+                            <div class="crisis-card-icon" style="background: ${c.accentColor || 'var(--primary-blue)'}">
+                                <i class="${c.icon || 'ph-fill ph-shield-warning'}"></i>
+                            </div>
+                            <div class="crisis-card-title">
+                                <span>${c.category || 'General protocol'}</span>
+                                <h2>${c.title}</h2>
+                            </div>
+                        </div>
+                        
+                        <div class="info-block">
+                            <h4><i class="ph-bold ph-warning-circle"></i> Problem</h4>
+                            <p>${c.problem || c.desc || 'Potential risk or harm identified.'}</p>
+                        </div>
+
+                        <div class="step-list-full">
+                            <h4><i class="ph-bold ph-list-numbers"></i> Steps to Follow</h4>
+                            ${crisisSteps}
+                        </div>
+
+                        <div class="info-block" style="margin-top: 16px; border-left: 4px solid #10b981;">
+                            <h4><i class="ph-bold ph-check-circle" style="color: #10b981;"></i> Solution</h4>
+                            <p>${c.solution || 'Safe resolution through protocol compliance.'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+    <!-- Instant Auth Guard -->
+    <script type="module">
+        import { supabase } from './auth_service.js'
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!session && localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('signin.html');
+        } else if (session) {
+            // Ensure localStorage reflects Supabase state for legacy code
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+    </script>
+</body>
+</html>

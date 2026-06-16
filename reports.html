@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Crisis Navigation System</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#3b82f6">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <!-- PWA Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Registration Failed:', err));
+            });
+        }
+    </script>
+    
+    <!-- Instant Auth Guard & Logout -->
+    <script type="module">
+        import { supabase } from './auth_service.js'
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!session && localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('signin.html');
+        } else if (session) {
+            // Ensure localStorage reflects Supabase state for legacy code
+            localStorage.setItem('isLoggedIn', 'true');
+        }
+
+        // Handle Logout
+        document.querySelectorAll('.logout-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                localStorage.removeItem('isLoggedIn');
+                window.location.replace('signin.html');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-phone-frame">
+            <!-- Layout Start -->
+            <div class="menu-overlay" id="menu-overlay"></div>
+            <div class="side-menu" id="side-menu">
+                <div class="menu-header" style="position: relative;">
+                    <button class="close-menu-btn icon-btn" style="position: absolute; right: 0; top: 0; background: transparent; color: var(--text-muted); border: none; font-size: 1.25rem; cursor: pointer; padding: 4px;"><i class="ph-bold ph-x"></i></button>
+                    <div class="menu-logo">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <h2>CrisisNav</h2>
+                    </div>
+
+                    <div class="menu-user-info">
+                        <div class="menu-user-avatar">
+                            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Avatar" class="profile-pic-img">
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="profile-display-name">User</h3>
+                            <p class="profile-display-role">Crisis Responder</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-links">
+                    <a href="index.html" class="menu-link"><i class="ph-bold ph-house"></i> <span data-i18n="nav_home">Home</span></a>
+                    <a href="my-crises.html" class="menu-link"><i class="ph-bold ph-briefcase"></i> <span data-i18n="nav_my_crisis">My Crises</span></a>
+                    <a href="reports.html" class="menu-link active"><i class="ph-bold ph-file-text"></i> <span data-i18n="nav_reports">Reports</span></a>
+                    <a href="settings.html" class="menu-link"><i class="ph-bold ph-gear"></i> <span data-i18n="nav_settings">Settings</span></a>
+                    <a href="profile.html" class="menu-link"><i class="ph-bold ph-user-circle"></i> <span data-i18n="nav_profile">Profile</span></a>
+                    <a href="#" class="menu-link" id="btn-start-tutorial" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: 8px; padding-top: 12px; color: #10b981;">
+                        <i class="ph-bold ph-magic-wand"></i> <span data-i18n="nav_tutorial">Quick Tutorial</span>
+                    </a>
+                </div>
+                <div class="menu-recent-activity">
+                    <h3 data-i18n="nav_activity">Recent System Activity</h3>
+                    <div id="sidebar-activity-list" class="sidebar-activity-list">
+                        <!-- Activities will be injected here by JS -->
+                        <div class="sidebar-activity-placeholder" data-i18n="nav_no_activity">No activities recorded in this session</div>
+                    </div>
+                </div>
+                <div class="menu-footer">
+                    <a href="#" class="logout-btn"><i class="ph-bold ph-sign-out"></i> <span data-i18n="nav_logout">Log Out</span></a>
+                </div>
+            </div>
+            <!-- Header -->
+            <header class="app-header">
+            <div class="header-left">
+                <button id="menu-toggle" class="icon-btn"><i class="ph-bold ph-list"></i></button>
+                <h1 class="app-title">Reports</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <button id="help-trigger" class="icon-btn" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="ph-bold ph-question"></i>
+                </button>
+                <div class="profile-pic">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- AI Search Assistant -->
+            <section class="search-section" style="margin-bottom: 24px; padding: 0 4px;">
+                <div class="ai-search-container glass-card" style="padding: 18px; border: 1px solid var(--primary-blue); background: rgba(59, 130, 246, 0.05); border-radius: 20px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <i class="ph-fill ph-sparkles" style="color: var(--primary-blue); font-size: 1.15rem;"></i>
+                        <h3 style="font-size: 0.95rem; font-weight: 700;">Crisis AI Assistant</h3>
+                    </div>
+                    <div class="search-container" style="margin-bottom: 12px; width: 100%; position: relative;">
+                        <i class="ph-bold ph-magnifying-glass search-icon" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); opacity: 0.5;"></i>
+                        <input type="text" id="ai-crisis-search" placeholder="Ask about any crisis..." autocomplete="off" style="width: 100%; padding: 12px 12px 12px 40px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.85rem;">
+                    </div>
+                    <div id="ai-response-area" class="ai-response-area" style="display: none;">
+                        <!-- AI Response content will be injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Report Button -->
+            <button class="next-step-btn" style="margin-bottom: 8px;">
+                <span>Generate New Report</span>
+                <i class="ph-bold ph-file-pdf"></i>
+                <small>Create an export of all recorded incidents</small>
+            </button>
+
+            <!-- Recent Reports -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <h3>Recent Downloads</h3>
+                </div>
+                <div class="activity-list">
+                    <!-- Report 1 -->
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: var(--primary-blue);"><i class="ph-fill ph-file-text"></i></div>
+                        <div class="activity-content">
+                            <p>Q3 Safety Audit Report</p>
+                            <span>Generated Oct 22 • 2.4 MB</span>
+                        </div>
+                        <button class="icon-btn" style="color: var(--primary-blue);"><i class="ph-bold ph-download-simple"></i></button>
+                    </div>
+                    <!-- Report 2 -->
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: var(--text-muted);"><i class="ph-fill ph-file-text"></i></div>
+                        <div class="activity-content">
+                            <p>Incident Log: Floor 3 Medical</p>
+                            <span>Generated Oct 12 • 840 KB</span>
+                        </div>
+                        <button class="icon-btn" style="color: var(--primary-blue);"><i class="ph-bold ph-download-simple"></i></button>
+                    </div>
+                    <!-- Report 3 -->
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: var(--text-muted);"><i class="ph-fill ph-file-text"></i></div>
+                        <div class="activity-content">
+                            <p>Q2 Post-Evac Drill Summary</p>
+                            <span>Generated Jul 05 • 1.1 MB</span>
+                        </div>
+                        <button class="icon-btn" style="color: var(--primary-blue);"><i class="ph-bold ph-download-simple"></i></button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Statistics Quick View -->
+            <section class="steps-section" style="padding: 16px; margin-top: 8px;">
+                <div class="section-header" style="margin-bottom: 12px;">
+                    <h3>Year to Date Analytics</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 12px; text-align: center;">
+                        <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary-blue);">14</span>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Total Incidents</p>
+                    </div>
+                    <div style="background: #f8fafc; padding: 16px; border-radius: 12px; text-align: center;">
+                        <span style="font-size: 1.5rem; font-weight: 800; color: var(--fire);">4m</span>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Avg. Response</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="app-nav">
+            <button class="nav-item">
+                <i class="ph-bold ph-house"></i>
+                <span data-i18n="nav_home">Home</span>
+            </button>
+            <button class="nav-item">
+                <div class="nav-badge">1</div>
+                <i class="ph-bold ph-briefcase"></i>
+                <span data-i18n="nav_my_crisis">My Crisis</span>
+            </button>
+            <button id="voice-btn" class="nav-mic-btn">
+                <div class="mic-inner">
+                    <i class="ph-fill ph-microphone"></i>
+                </div>
+            </button>
+            <button class="nav-item active">
+                <i class="ph-fill ph-file-text"></i>
+                <span data-i18n="nav_reports">Reports</span>
+            </button>
+            <button class="nav-item">
+                <i class="ph-bold ph-gear"></i>
+                <span data-i18n="nav_settings">Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Smart Recommendation Modal (Reused) -->
+            <!-- Smart Recommendation Modal -->
+            <div id="recommendation-modal" class="modal-overlay">
+                <div class="modal-content glass-card">
+                    <div class="modal-header">
+                        <div class="ai-badge"><i class="ph-fill ph-sparkles"></i> AI Recommendation</div>
+                        <button id="close-recommendation" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h2 id="rec-title">Detected Crisis</h2>
+                        <p id="rec-desc">Are you experiencing a situation? Here is the suggested response flow.</p>
+                        <div id="rec-suggestion" class="suggestion-box"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-cancel-rec" class="btn-secondary">Ignore</button>
+                        <button id="btn-approve-rec" class="btn-primary">Start Flow</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module" src="i18n.js"></script>
+</body>
+</html>
