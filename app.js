@@ -1038,6 +1038,7 @@ function handleAISearch(query) {
         c.steps.some(s => s.title.toLowerCase().includes(query))
     );
     
+
     if (match) {
         return {
             answer: `Based on your request about "${query}", here is the ${match.title} protocol.`,
