@@ -1,49 +1,88 @@
-# 🛡️ Crisis Navigation System (CrisisNav) - Re-envisioned
+# 🛡️ CrisisNav
 
-**CrisisNav** is a premium, industry-grade emergency guidance platform. This mission-critical application provides real-time, interactive protocols for responders and citizens during emergencies.
+> An offline-first emergency guidance platform for quickly accessing structured crisis protocols when connectivity may be unreliable.
 
----
+## What is CrisisNav?
 
-## ✨ Features
+CrisisNav is a Progressive Web App focused on making emergency guidance fast to find and usable in difficult connectivity conditions.
 
-### 📡 1. Full Offline Support (PWA)
-CrisisNav is now a fully functional **Progressive Web App**. It is designed to work reliably in cellular dead zones or during total network outages.
-- **Service Worker (v2):** Advanced caching for all critical assets and emergency protocols.
-- **Offline Indicator:** A real-time status badge informs users when they are working in "Cached Mode".
-- **Zero-Latency:** Immediate access to SOPs after the first load.
+The project combines cached content, structured emergency protocols, multilingual support, voice interaction, and a responsive interface.
 
-### 🎙️ 2. Advanced Voice Assistant
-A hands-free "Mission Control" assistant for high-stress environments.
-- **Multilingual Support:** Recognizes commands in **English, Hindi, Bengali, and more**.
-- **Navigation & Control:** Say "Go to Profile", "Next Step", or "Fire" to operate the app hands-free.
-- **Verbal Feedback:** The app talks back to confirm actions and guide users through protocols.
-- **Visualizer UI:** Modern animated wave feedback for voice listening.
+## ✨ Highlights
 
-### 🗺️ 3. Intelligent Guidance & Search
-- **Global Search:** High-tech command bar to quickly find any protocol or knowledge base article.
-- **Interactive Onboarding:** A built-in guided tour for new users to master the interface.
-- **12+ Indian Languages:** Full localization support for major regional languages.
+- 📡 **Offline-first PWA** — service-worker caching keeps core resources available after the first successful load
+- 🎙️ **Voice interaction** — hands-free navigation and protocol control
+- 🌍 **Multilingual interface** — localization support for Indian languages
+- 🔎 **Protocol search** — quickly find relevant emergency guidance
+- 🧭 **Step-based guidance** — structured protocols with visible progress
+- 📱 **Responsive UI** — designed for mobile and desktop use
+- 🔐 **User features** — authentication/profile flows are included in the application
 
-### 🧭 4. Premium Design System
-- **💎 Glassmorphism UI:** Fully responsive, vibrant category-specific themes.
-- **🧭 Dynamic Step Navigation:** Real-time tracking of emergency SOPs with visual progress.
-- **🚀 Ultra-Fast Response:** Optimized for rapid touchscreen action on mobile devices.
+## 🧰 Tech Stack
 
----
+- **Frontend:** HTML5, CSS3, JavaScript
+- **Backend:** Node.js, Express, CORS
+- **PWA:** Service Worker + Web App Manifest
+- **Icons:** Phosphor Icons
 
-## 🛠️ Technology Stack
-- **Frontend:** Vanilla HTML5, CSS3 (Custom Properties, Grid/Flex), JavaScript (Fetch API).
-- **Backend:** Node.js, Express, CORS.
-- **Icons:** Phosphor Icons.
-- **PWA:** Service Workers, Web App Manifest.
+## 🚀 Run Locally
 
----
+### Prerequisites
 
-@@ -32,7 +52,7 @@
-   ```
+- Node.js and npm
 
-3. **Open in Browser:**
-   Navigate to `http://localhost:3001`
+### Setup
 
----
-.
+```bash
+git clone https://github.com/sanyukt63/CrisisNav.git
+cd CrisisNav
+npm install
+npm start
+```
+
+Then open:
+
+```text
+http://localhost:3001
+```
+
+For additional setup details, see [SETUP_GUIDE.md](SETUP_GUIDE.md).
+
+## 📂 Key Files
+
+```text
+CrisisNav/
+├── app.js              # Main application logic
+├── auth_service.js     # Authentication-related logic
+├── i18n.js             # Localization
+├── index.html          # Main application
+├── manifest.json       # PWA manifest
+├── service-worker.js   # Offline caching
+├── SETUP_GUIDE.md      # Detailed setup
+└── package.json        # Node.js configuration
+```
+
+## 🗺️ Roadmap
+
+- [ ] Add automated unit/integration tests
+- [ ] Add protocol content validation
+- [ ] Improve offline cache update strategy
+- [ ] Add accessibility checks
+- [ ] Add contributor documentation
+- [ ] Add demo screenshots/video
+- [ ] Add automated CI checks
+
+## ⚠️ Important
+
+CrisisNav is a software project for organizing emergency guidance. It is **not a substitute for local emergency services, professional responders, or official public-safety instructions**. In a real emergency, follow applicable local guidance and contact emergency services when appropriate.
+
+## 🤝 Contributing
+
+Bug reports, accessibility improvements, documentation, testing, and feature contributions are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Make and test your change
+4. Open a pull request explaining the problem and solution
+
+⭐ If the project is useful, consider starring it and sharing feedback.
