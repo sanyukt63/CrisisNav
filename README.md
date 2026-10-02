@@ -40,26 +40,26 @@ npm install
 npm start
 ```
 
-Then open:
-
-```text
-http://localhost:3001
-```
+Then open `http://localhost:3001`.
 
 For additional setup details, see [SETUP_GUIDE.md](SETUP_GUIDE.md).
+
+## 🧪 Offline Verification
+
+When testing offline behavior, first load the application successfully while connected, then disable network access and verify that the app shell and cached protocol content remain available. Reconnect before testing cache updates.
 
 ## 📂 Key Files
 
 ```text
 CrisisNav/
-├── app.js              # Main application logic
-├── auth_service.js     # Authentication-related logic
-├── i18n.js             # Localization
-├── index.html          # Main application
-├── manifest.json       # PWA manifest
-├── service-worker.js   # Offline caching
-├── SETUP_GUIDE.md      # Detailed setup
-└── package.json        # Node.js configuration
+├── app.js
+├── auth_service.js
+├── i18n.js
+├── index.html
+├── manifest.json
+├── service-worker.js
+├── SETUP_GUIDE.md
+└── package.json
 ```
 
 ## 🗺️ Roadmap
