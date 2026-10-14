@@ -27,7 +27,13 @@ export const LANGUAGES = [
 ];
 
 export function getCurrentLanguage() {
-    return localStorage.getItem('crisisnav_lang') || 'en';
+    try {
+        const savedLanguage = localStorage.getItem('crisisnav_lang');
+        return savedLanguage && translations[savedLanguage] ? savedLanguage : 'en';
+    } catch (error) {
+        // Storage can be unavailable in restricted browser contexts.
+        return 'en';
+    }
 }
 
 export function setLanguage(langCode) {
