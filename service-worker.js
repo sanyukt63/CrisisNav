@@ -61,6 +61,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).then((fetchResponse) => {
+          if (!fetchResponse.ok) return fetchResponse;
           return caches.open(STATIC_CACHE).then((cache) => {
             cache.put(request, fetchResponse.clone());
             return fetchResponse;
@@ -76,6 +77,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).then((fetchResponse) => {
+          if (!fetchResponse.ok) return fetchResponse;
           return caches.open(IMAGE_CACHE).then((cache) => {
             cache.put(request, fetchResponse.clone());
             return fetchResponse;
@@ -100,6 +102,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
+        if (!networkResponse.ok) return networkResponse;
         return caches.open(STATIC_CACHE).then((cache) => {
           cache.put(request, networkResponse.clone());
           return networkResponse;
