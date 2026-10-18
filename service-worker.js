@@ -96,7 +96,9 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() => {
-        return caches.match(request) || caches.match('./index.html');
+        return caches.match(request).then((cachedPage) => {
+          return cachedPage || caches.match('./index.html');
+        });
       })
     );
     return;
