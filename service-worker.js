@@ -52,6 +52,10 @@ self.addEventListener('activate', (event) => {
 // Fetch Event
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
+  // Cache Storage only supports GET requests; let other methods reach the network directly.
+  if (request.method !== 'GET') return;
+
   const url = new URL(request.url);
 
   // 1. External Assets (Fonts, Icons from CDNs) - Cache First
