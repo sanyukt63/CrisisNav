@@ -67,3 +67,14 @@ Open your browser to:
 ---
 
 **Great luck with your hackathon!** 🏆
+
+## Local verification checklist
+
+After setting up the application locally:
+- Confirm required environment variables are present without committing secret values.
+- Open the main navigation pages and verify there are no obvious console errors.
+- Check that language preference still works when browser storage is unavailable.
+- Test empty and malformed form submissions and confirm the page gives a recoverable message.
+- Verify the service worker does not leave stale content after an application update.
+
+Record any environment-specific limitation in the issue or pull request rather than silently skipping the check.
