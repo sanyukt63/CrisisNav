@@ -86,3 +86,7 @@ Bug reports, accessibility improvements, documentation, testing, and feature con
 4. Open a pull request explaining the problem and solution
 
 ⭐ If the project is useful, consider starring it and sharing feedback.
+
+## Failure-state review
+
+When changing a crisis-reporting flow, verify that dependency failures produce clear recovery guidance, optional browser-storage failures do not crash the page, retries do not duplicate submissions, and user-facing errors never expose credentials or stack traces. Add a regression case for each failure mode found.
