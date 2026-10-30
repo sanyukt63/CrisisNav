@@ -40,13 +40,24 @@ npm install
 npm start
 ```
 
-Then open `http://localhost:3001`.
+The server listens on port `3001` by default. You can override it with the `PORT` environment variable:
 
-For additional setup details, see [SETUP_GUIDE.md](SETUP_GUIDE.md).
+```bash
+# Linux/macOS
+PORT=4000 npm start
 
-## 🧪 Offline Verification
+# Windows PowerShell
+$env:PORT=4000
+npm start
+```
 
-When testing offline behavior, first load the application successfully while connected, then disable network access and verify that the app shell and cached protocol content remain available. Reconnect before testing cache updates.
+Then open [http://localhost:3001](http://localhost:3001) when using the default port. For additional setup details, see [SETUP_GUIDE.md](SETUP_GUIDE.md).
+
+For automatic restart during development, use:
+
+```bash
+npm run dev
+```
 
 ## 📂 Key Files
 
@@ -58,9 +69,19 @@ CrisisNav/
 ├── index.html
 ├── manifest.json
 ├── service-worker.js
-├── SETUP_GUIDE.md
-└── package.json
+├── server.js
+├── package.json
+└── SETUP_GUIDE.md
 ```
+
+## 🧪 Offline Verification
+
+1. Start the app and load it successfully while connected.
+2. Open the browser's developer tools and switch the network to offline.
+3. Reload and verify that the cached app shell and supported cached protocol content remain available.
+4. Reconnect and verify that the app can load updated resources.
+
+Offline behavior depends on the service worker having completed its initial installation and caching successfully. Test cache updates separately from first-time installation.
 
 ## 🗺️ Roadmap
 
