@@ -54,6 +54,10 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  if (request.method !== 'GET') {
+    return;
+  }
+
   // 1. External Assets (Fonts, Icons from CDNs) - Cache First
   if (url.origin.includes('fonts.googleapis.com') || 
       url.origin.includes('fonts.gstatic.com') || 
@@ -61,6 +65,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).then((fetchResponse) => {
+          if (!fetchResponse.ok && fetchResponse.type !== 'opaque') {
+            return fetchResponse;
+          }
           return caches.open(STATIC_CACHE).then((cache) => {
             cache.put(request, fetchResponse.clone());
             return fetchResponse;
@@ -76,6 +83,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((response) => {
         return response || fetch(request).then((fetchResponse) => {
+          if (!fetchResponse.ok && fetchResponse.type !== 'opaque') {
+            return fetchResponse;
+          }
           return caches.open(IMAGE_CACHE).then((cache) => {
             cache.put(request, fetchResponse.clone());
             return fetchResponse;
@@ -100,10 +110,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
+        if (!networkResponse.ok) {
+          return cachedResponse || networkResponse;
+        }
         return caches.open(STATIC_CACHE).then((cache) => {
           cache.put(request, networkResponse.clone());
           return networkResponse;
         });
+      }).catch((error) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        throw error;
       });
       return cachedResponse || fetchPromise;
     })
